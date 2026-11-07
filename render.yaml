@@ -18,7 +18,8 @@ projects:
             runtime: image
             image:
               url: docker.io/infisical/infisical:v0.167.6
-            plan: starter
+            # Migrations on first boot use more than Starter's 512 MB.
+            plan: standard
             region: oregon
             healthCheckPath: /api/status
             # Infisical uses ENCRYPTION_KEY as a raw AES-256 key, so it must be
