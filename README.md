@@ -54,7 +54,7 @@ flowchart LR
 
 | Resource | Type | Plan | Notes |
 | --- | --- | --- | --- |
-| `infisical` | Web, image | Starter | Health: `/api/status`. |
+| `infisical` | Web, image | Standard | Health: `/api/status`. Starter (512 MB) runs out of memory during first-boot migrations. |
 | `infisical-kv` | Key Value | Starter | `noeviction`, so queued jobs are never dropped. Internal connections only. |
 | `infisical-db` | Postgres 16 | Basic 256 MB | Internal connections only. |
 
@@ -68,9 +68,8 @@ Infisical uses `ENCRYPTION_KEY` directly as an AES-256 key, so it must be exactl
 
 1. Click **Deploy to Render** above.
 2. Wait until `infisical` is **Live**.
-3. Open the service URL and sign up. The first account is the admin.
+3. Open the service URL and sign up. The first account is the admin. Later sign-ups need an invite.
 4. **Back up `ENCRYPTION_SEED`** from the service's **Environment** page and store it outside Render. You can't decrypt your secrets without it.
-5. Optional: in **Server Admin**, turn off open sign-ups.
 
 ```bash
 curl -fsS "https://<infisical>.onrender.com/api/status"
@@ -96,16 +95,19 @@ Prices from [Render's pricing page](https://render.com/pricing).
 
 | Resource | Approx. monthly |
 | --- | ---: |
-| `infisical` (Starter) | $7 |
+| `infisical` (Standard, 2 GB) | $25 |
 | `infisical-kv` (Starter) | $10 |
 | `infisical-db` (Basic 256 MB) | $6 |
-| **Total** | **~$23** |
+| **Total** | **~$41** |
+
+Standard is the floor. Infisical peaked at about 690 MB during first-boot migrations and settles around 555 MB.
 
 ## Troubleshooting
 
 | Problem | Solution |
 | --- | --- |
-| First deploy fails to connect to Postgres | The service started before `infisical-db` accepted connections. Wait for the database to be **Available** and click **Manual Deploy**. |
+| First deploy fails with `ECONNREFUSED ...:5432` | The service started before `infisical-db` accepted connections. Wait for the database to be **Available** and click **Manual Deploy**. |
+| Deploy fails with `Out of memory (used over 512Mi)` | The service is on Starter. Use Standard or larger. |
 | Secrets fail to decrypt after a change | `ENCRYPTION_SEED` changed. Restore the old value. |
 | Everyone is signed out | `AUTH_SECRET` changed. Expected after a rotation. |
 | Invite or verification emails never arrive | Set the `SMTP_*` variables. |
